@@ -15,7 +15,7 @@
 <body>
 <center>
     <table class="easyui-datagrid" id="tt" style="width:800px"
-           data-options="rownumbers:true,singleSelect:true,method:'get',toolbar:'#tb'">
+           data-options="rownumbers:true,singleSelect:true,toolbar:'#tb'">
     </table>
     <%--查询条件--%>
     <div id="tb" style="padding:2px 5px;">
@@ -75,6 +75,10 @@
                 var result = eval('(' + result + ')');
 
                 if (result.success) {
+                    if($("#fam")){
+                        $("#fam").resetForm();
+                    }
+                    //document.getElementById('fam')&&document.getElementById('fam').reset();
                     $('#uploadonlineinfo').window('close');
                     $.messager.alert({
                         title: 'Success',
@@ -112,10 +116,10 @@
         }
         $('#tt').datagrid({
             title: '北京语言大学网络教育学院学位英语成绩导入',
-            studentId: $('#studentId').val(),
-            name: $('#name').val(),
             url: 'getScoreList',
             emptyMsg: '列表为空',
+            method:'get',
+            loadMsg: '正在加载数据',
             columns: [[
                 {field: 'id', title: 'ID', align: 'center'},
                 {field: 'batchId', title: '考试批次', align: 'center'},
@@ -135,6 +139,7 @@
             name: $('#name').val(),
             url: 'getScoreList',
             emptyMsg: '列表为空',
+            method:'get',
             columns: [[
                 {field: 'id', align: 'center'},
                 {field: 'batchId', align: 'center'},

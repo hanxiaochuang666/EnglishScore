@@ -258,11 +258,18 @@
         </pluginManagement>
         <resources>
             <resource>
-                <directory>src/main/java</directory>
+                <directory>src/main/resource</directory>
                 <includes>
                     <include>**/*.properties</include>
                     <include>**/*.xml</include>
                     <include>**/*.tld</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
                 </includes>
                 <filtering>false</filtering>
             </resource>
