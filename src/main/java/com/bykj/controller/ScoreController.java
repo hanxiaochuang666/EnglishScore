@@ -4,15 +4,16 @@ package com.bykj.controller;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.result.ExcelImportResult;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.bykj.dao.StudentScore;
 import com.bykj.mapper.StudentScoreMapper;
 import com.bykj.service.ScoreService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,14 +34,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
-  * @description
-  * @Author hanchuang
-  * @Version 1.0
-  * @Date add on 2019/5/6
-  */
+ * @description
+ * @Author hanchuang
+ * @Version 1.0
+ * @Date add on 2019/5/6
+ */
 
 @Controller
 @RequestMapping("/")
+@Api(tags = "英语成绩查询服务",description = "包含以下接口：\n" +
+        "1、根据学号和学生姓名查询学生成绩列表\n"+
+        "2、执行excel导入\n"+
+        "3、下载服务器中的excel文件\n"+
+        "4、根据主键删除学生成绩")
 public class ScoreController  {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -51,18 +57,23 @@ public class ScoreController  {
     private StudentScoreMapper scoreMapper;
 
     /**
-      * @Author hanchuang
-      * @Version 1.0
-      * @Date add on 2019/5/8
-      * @Description
-      */
+     * @Author hanchuang
+     * @Version 1.0
+     * @Date add on 2019/5/8
+     * @Description
+     */
     @RequestMapping(value = "getScoreList", method = RequestMethod.GET)
     @ResponseBody
-    public ArrayList<StudentScore> getScoreList(HttpServletRequest request, HttpServletResponse response) {
+    @ApiOperation(value = "根据学号和学生姓名查询学生成绩列表",notes = "根据学号和学生姓名查询学生成绩列表",httpMethod = "GET")
+    public ArrayList<StudentScore> getScoreList(@ApiParam(value = "学号") @RequestParam String studentId,
+                                                @ApiParam(value = "姓名") @RequestParam String name) throws Exception{
 
         Map<String,Object> paraMap = new HashMap<>();
-        paraMap.put("studentId",request.getParameter("studentId"));
-        paraMap.put("name",request.getParameter("name"));
+        if (null == studentId || null == name){
+            throw new Exception("参数为空！！");
+        }
+        paraMap.put("studentId",studentId);
+        paraMap.put("name",name);
 
         ArrayList<StudentScore> list = scoreService.getScoreList(paraMap);
         list.forEach(studentScore -> logger.info("查询结果列表："+studentScore.toString()));
@@ -71,18 +82,19 @@ public class ScoreController  {
 
 
     /**
-      * @Author hanchuang
-      * @Version 1.0
-      * @Date add on 2019/5/8
-      * @Description   执行excel导入
-      */
+     * @Author hanchuang
+     * @Version 1.0
+     * @Date add on 2019/5/8
+     * @Description   执行excel导入
+     */
 
-    @RequestMapping(value = "importExcel", method = RequestMethod.POST,produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "importExcel", method = RequestMethod.POST,produces = "text/plain;charset=utf-8")
     @ResponseBody
-    public String importExcel(@RequestParam(value = "efile") MultipartFile file, HttpServletRequest request) throws Exception{
+    @ApiOperation(value = "执行excel成绩导入",notes = "执行excel成绩导入",httpMethod = "POST")
+    public JSONObject importExcel(@ApiParam(value = "file文件") @RequestParam(value = "efile") MultipartFile file) throws Exception{
 
         Map<String,Object> retMap = new HashMap<>();
-        retMap.put("success","true");
+        retMap.put("issuccess",true);
 
         ImportParams importParams = new ImportParams();
         // 数据处理
@@ -105,10 +117,13 @@ public class ScoreController  {
                 scoreMapper.insertSelective(demoExcel);
             }
         } catch (Exception e) {
-            retMap.put("success","false");
+            retMap.put("issuccess",false);
             retMap.put("errMsg","文件上传出错！"+e.getMessage());
         }
-        return  new JSONObject(retMap).toJSONString();
+        JSONObject o = new JSONObject(retMap);
+        System.out.println("jsonString:======="+o.toJSONString());
+        System.out.println("String:======="+o.toString());
+        return  new JSONObject(retMap);
     }
 
 
@@ -121,7 +136,8 @@ public class ScoreController  {
      * @return
      */
     @RequestMapping(value = "download", method = RequestMethod.GET)
-    public String downloadExcelFile(HttpServletRequest request, HttpServletResponse response) {
+    @ApiOperation(value = "下载excel文件",notes = "下载excel文件")
+    public String downloadExcelFile(@RequestParam HttpServletRequest request, HttpServletResponse response) {
 
         String fileName = request.getParameter("filePath");
         // 1: 找到excel文件
@@ -180,18 +196,16 @@ public class ScoreController  {
      * @Author hanchuang
      * @Version 1.0
      * @Date add on 2019/5/8
-     * @Description
+     * @Description 根据主键删除学生成绩
      */
-    @RequestMapping(value = "deleteScore",  method = {RequestMethod.POST,RequestMethod.GET})
+    @RequestMapping(value = "deleteScore",  method = RequestMethod.GET)
     @ResponseBody
-    public Map<String,Object> deleteScore(HttpServletRequest request, HttpServletResponse response) throws Exception{
+    @ApiOperation(value = "根据主键删除学生成绩",notes = "根据主键删除学生成绩")
+    public Map<String,Object> deleteScore(@ApiParam(value = "学生主键id") @RequestParam String id) throws Exception{
 
         Map<String,Object> retMap = new HashMap<>();
         Map<String,Object> paraMap = new HashMap<>();
-        paraMap.put("studentId",request.getParameter("studentId"));
-        paraMap.put("name",request.getParameter("name"));
-        paraMap.put("batchId",request.getParameter("batchId"));
-        paraMap.put("id",request.getParameter("id"));
+        paraMap.put("id",id);
         scoreService.deleteScore(paraMap);
         retMap.put("result","success");
         return retMap;
