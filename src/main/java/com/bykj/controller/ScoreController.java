@@ -121,8 +121,7 @@ public class ScoreController  {
             retMap.put("errMsg","文件上传出错！"+e.getMessage());
         }
         JSONObject o = new JSONObject(retMap);
-        System.out.println("jsonString:======="+o.toJSONString());
-        System.out.println("String:======="+o.toString());
+        logger.info("jsonString:======="+o.toJSONString());
         return  new JSONObject(retMap);
     }
 

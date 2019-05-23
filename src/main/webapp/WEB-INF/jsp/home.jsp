@@ -69,15 +69,15 @@
         $('#fam').form('submit', {
             url: add,
             onSubmit: function () {
-                debugger;
-                var _val = $("#efile").val();
-                console.log(_val);
+                var fileInput = $('input[name="efile"]').val();
+                if(fileInput){
+                }else{
+                    alert("请选择上传文件！");
+                    return false;
+                }
             },
             success: function (data) {
-                debugger;
-                console.log(JSON.stringify(data));
                 var result = eval('('+data+')');
-                console.log(result.issuccess == "true");
                 if (result.issuccess) {
                     if($("#fam")){
                         $("#fam").resetForm();
