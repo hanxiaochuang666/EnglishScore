@@ -21,6 +21,7 @@ public class ScoreServiceImpl implements ScoreService {
     @Override
     public ArrayList<StudentScore> getScoreList(Map<String,Object> map) {
 
+        // 测试提交
         StudentScoreExample scoreExample = new StudentScoreExample();
         scoreExample.createCriteria().andStudentIdEqualTo(Long.parseLong(String.valueOf(map.get("studentId"))))
                 .andNameEqualTo(String.valueOf(map.get("name"))).andStatusEqualTo(1);
