@@ -15,7 +15,7 @@
 <body>
 <center>
     <table class="easyui-datagrid" id="tt" style="width:800px"
-           data-options="rownumbers:true,singleSelect:true,toolbar:'#tb'">
+           data-options="rownumbers:true,singleSelect:true,url:'getScoreList',method:'get',toolbar:'#tb'">
     </table>
     <%--查询条件--%>
     <div id="tb" style="padding:2px 5px;">
@@ -69,12 +69,16 @@
         $('#fam').form('submit', {
             url: add,
             onSubmit: function () {
-
+                var fileInput = $('input[name="efile"]').val();
+                if(fileInput){
+                }else{
+                    alert("请选择上传文件！");
+                    return false;
+                }
             },
-            success: function (result) {
-                var result = eval('(' + result + ')');
-
-                if (result.success) {
+            success: function (data) {
+                var result = eval('('+data+')');
+                if (result.issuccess) {
                     if($("#fam")){
                         $("#fam").resetForm();
                     }
@@ -86,9 +90,9 @@
                     });
                     $('#tt').datagrid('reload');
                 } else {
-                    $.messager.error()({
+                    $.messager.alert({
                         title: 'Error',
-                        msg: '文件内容出错，请检查文件是否符合标准模板！'
+                        msg: result.errMsg
                     });
                 }
             }
@@ -116,9 +120,7 @@
         }
         $('#tt').datagrid({
             title: '北京语言大学网络教育学院学位英语成绩导入',
-            url: 'getScoreList',
             emptyMsg: '列表为空',
-            method:'get',
             loadMsg: '正在加载数据',
             columns: [[
                 {field: 'id', title: 'ID', align: 'center'},
@@ -137,9 +139,7 @@
             title: '北京语言大学网络教育学院学位英语成绩导入',
             studentId: $('#studentId').val(),
             name: $('#name').val(),
-            url: 'getScoreList',
             emptyMsg: '列表为空',
-            method:'get',
             columns: [[
                 {field: 'id', align: 'center'},
                 {field: 'batchId', align: 'center'},
@@ -177,16 +177,9 @@
             $.messager.confirm('确认', '确定删除？', function(r){
                 if (r){
                     $.ajax({
-                        url: "deleteScore",
-                        type: "POST",
+                        url: "deleteScore?id="+row.id,
+                        type: "get",
                         async: true,
-                        dataType: "json",
-                        data: {
-                            id: row.id,
-                            name: row.name,
-                            batchId: row.batchId,
-                            studentId: row.studentId
-                        },
                         success: function (result) {
                             // alert("success!");
                             $('#tt').datagrid('reload');
